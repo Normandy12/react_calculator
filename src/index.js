@@ -7,7 +7,7 @@ class Square extends React.Component {
     render() {
         return (
         <button className="square">
-            {/* TODO */}
+            {this.props.value}
         </button>
         );
     }
@@ -15,29 +15,44 @@ class Square extends React.Component {
   
 class Board extends React.Component {
     renderSquare(i) {
-      return <Square />;
+      return <Square value={i} />;
     }
   
     render() {
-        const status = 'Next player: X';
+        const status = '0';
   
         return (
             <div>
-                <div className="status">{status}</div>
+                <div className="display">{status}</div>
                 <div className="board-row">
-                    {this.renderSquare(0)}
+                    {this.renderSquare("AC")}
+                    {this.renderSquare("C")}
+                    {this.renderSquare("%")}
+                    {this.renderSquare("/")}
+                </div>
+                <div className="board-row">
+                    {this.renderSquare(7)}
+                    {this.renderSquare(8)}
+                    {this.renderSquare(9)}
+                    {this.renderSquare("*")}
+                </div>
+                <div className="board-row">
+                    {this.renderSquare(4)}
+                    {this.renderSquare(5)}
+                    {this.renderSquare(6)}
+                    {this.renderSquare("+")}
+                </div>
+                <div className="board-row">
                     {this.renderSquare(1)}
+                    {this.renderSquare(2)}
+                    {this.renderSquare(3)}
                     {this.renderSquare(2)}
                 </div>
                 <div className="board-row">
-                    {this.renderSquare(3)}
-                    {this.renderSquare(4)}
-                    {this.renderSquare(5)}
-                </div>
-                <div className="board-row">
-                    {this.renderSquare(6)}
-                    {this.renderSquare(7)}
-                    {this.renderSquare(8)}
+                    {this.renderSquare("")}
+                    {this.renderSquare(0)}
+                    {this.renderSquare(".")}
+                    {this.renderSquare("=")}
                 </div>
             </div>
       );
