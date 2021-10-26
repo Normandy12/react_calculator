@@ -47,20 +47,23 @@ class Board extends React.Component {
     }
 
     handleOperationClick(i){
-        console.debug("here");
         const currentNumber = parseFloat(this.state.display);
         if( this.state.firstOperand == null ) {
             this.setState({
                 firstOperand: currentNumber,
-                operation: i,
-                typingNumber: false
             });
         } else {
             let result = this.calculate(this.state.operation,this.state.firstOperand,currentNumber);
             this.setState({
-                display: String(result)
+                display: String(result),
+                firstOperand: result,
             });
         }
+
+        this.setState({
+            typingNumber: false,
+            operation:i
+        });
     }
 
     calculate(operation,firstOperand, secondOperand){
@@ -76,19 +79,9 @@ class Board extends React.Component {
             case '/':
                 return f / s
             default:
-                return null;
+                return s;
         }
     }
-
-    // handleEqualClick() {
-    //     const firsoperand = this.state.firstOperand;
-    //     const secondOperand = this.state.secondOperand;
-    //     let res;
-
-    //     if( this.state.firstOperand && this.state.secondOperand){
-    //         if()
-    //     }
-    // }
 
     renderNumberKey(i) {
         return <NumberKey 
@@ -132,7 +125,7 @@ class Board extends React.Component {
                     {this.renderNumberKey(1)}
                     {this.renderNumberKey(2)}
                     {this.renderNumberKey(3)}
-                    {this.renderNumberKey(2)}
+                    {this.renderOperationKey("-")}
                 </div>
                 <div className="board-row">
                     {this.renderNumberKey("")}
