@@ -97,25 +97,31 @@ let Calculator = () => {
     return (
         <div className="calculator">
             <CalculatorDisplay />
-            <CalculatorNumericKey  value={0} />
-            <CalculatorNumericKey  value={1} />
-            <CalculatorNumericKey  value={2} />
-            <CalculatorNumericKey  value={3} />
-            <CalculatorNumericKey  value={4} />
-            <CalculatorNumericKey  value={5} />
-            <CalculatorNumericKey  value={6} />
+
+            <CalculatorClearKey value={"AC"} />
+            <CalculatorClearKey value={"C"} />
+            <CalculatorNegativeKey value={"+/-"} />
+            <CalculatorOperationKey  value={"/"} />
+
             <CalculatorNumericKey  value={7} />
             <CalculatorNumericKey  value={8} />
             <CalculatorNumericKey  value={9} />
-            <CalculatorOperationKey  value={"+"} />
-            <CalculatorOperationKey  value={"-"} />
             <CalculatorOperationKey  value={"*"} />
-            <CalculatorOperationKey  value={"/"} />
+
+            <CalculatorNumericKey  value={4} />
+            <CalculatorNumericKey  value={5} />
+            <CalculatorNumericKey  value={6} />
+             <CalculatorOperationKey  value={"-"} />
+
+            
+            <CalculatorNumericKey  value={1} />
+            <CalculatorNumericKey  value={2} />
+            <CalculatorNumericKey  value={3} />
+            <CalculatorOperationKey  value={"+"} />
+
+            <CalculatorNumericKey  value={0} />
+            <CalculatorPeriodKey value={"."} />  
             <CalculatorOperationKey  value={"="} />
-            <CalculatorPeriodKey value={"."} />
-            <CalculatorClearKey value={"C"} />
-            <CalculatorClearKey value={"AC"} />
-            <CalculatorNegativeKey value={"+/-"} />
         </div>
     )
 }
@@ -132,7 +138,7 @@ let CalculatorDisplay = () => {
 let CalculatorNumericKey = (props) => {
     const context = useContext(CalculatorContext);
     return (
-        <div className="calculator-key" >
+        <div className={`calculator-key key-${props.value}`} >
             <button className="square" onClick={() => context.updateDisplayValue(props.value)}>
                 {props.value}
             </button>
