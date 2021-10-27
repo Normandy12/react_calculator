@@ -1,176 +1,210 @@
 
-import React from 'react';
-import ReactDOM from 'react-dom';
+import React, { Component, useContext } from 'react';
+import { render } from 'react-dom';
 import './index.css';
 
-function NumberKey(props) {
-    return (
-        <button className="square" onClick={props.handleClick}>
-        {props.value}
-        </button>
-    );
-}
+const CalculatorContext = React.createContext();
 
-function OperationKey(props) {
-    return (
-        <button className="square" onClick={props.handleClick}>
-        {props.value}
-        </button>
-    );
-}
+class CalculatorProvider extends Component {
+    state = {
+        value: null,
+        displayValue: '0',
+        operator: null,
+        waitingForOperand: false,
+        updateDisplayValue: (num) => {
+            const { displayValue, waitingForOperand } = this.state
 
-  
-class Board extends React.Component {
-    constructor(props) {    
-        super(props);    
-        this.state = {      
-            display: "0",
-            firstOperand: null,
-            secondOperand: null,
-            operation: null,
-            typingNumber: false,
-        };  
-    }
-
-    handleNumberClick(i){
-        if(this.state.typingNumber) {
+            if (waitingForOperand) {
+                this.setState({
+                    displayValue: String(num),
+                    waitingForOperand: false
+                })
+            } else {
+                this.setState({
+                    displayValue: displayValue === '0' ? String(num) : displayValue.concat(num)
+                })
+            }
+        },
+        performOperation:  (nextOperator) => {    
+            const { value, displayValue, operator } = this.state
+            const inputValue = parseFloat(displayValue)
+            
+            if (value == null) {
+                this.setState({
+                value: inputValue
+                })
+            } else if (operator) {
+                const currentValue = value || 0
+                const newValue = CalculatorOperations[operator](currentValue, inputValue)
+                
+                this.setState({
+                value: newValue,
+                displayValue: String(newValue)
+                })
+            }
+            
             this.setState({
-                display: this.state.display.concat(i),
+                waitingForOperand: true,
+                operator: nextOperator
             })
-        } else {
+        },
+        addPeriod: () => {
+            const { displayValue } = this.state
+    
+            if (!(/\./).test(displayValue)) {
+                this.setState({
+                    displayValue: displayValue + '.',
+                    waitingForOperand: false
+                })
+            }
+        },
+        clear: (type) => {
+            if( type === 'AC') {
+                this.setState({
+                    value: null,
+                    displayValue: '0',
+                    operator: null,
+                    waitingForOperand: false
+                })
+            } else if(type === 'C' ) {
+                const { displayValue } = this.state
+
+                this.setState({
+                    displayValue: displayValue.slice(0, -1) || '0'
+                })
+            }
+        },
+        toggleNegative: () => {
+            const { displayValue } = this.state
+            const newValue = parseFloat(displayValue) * -1
+            
             this.setState({
-                display: String(i),
-                typingNumber: true
+                displayValue: String(newValue)
             })
         }
-        
     }
 
-    handleOperationClick(i){
-        const currentNumber = parseFloat(this.state.display);
-        if( this.state.firstOperand == null ) {
-            this.setState({
-                firstOperand: currentNumber,
-            });
-        } else {
-            let result = this.calculate(this.state.operation,this.state.firstOperand,currentNumber);
-            this.setState({
-                display: String(result),
-                firstOperand: result,
-            });
-        }
-
-        this.setState({
-            typingNumber: false,
-            operation:i
-        });
-    }
-
-    calculate(operation,firstOperand, secondOperand){
-        let f = parseFloat(firstOperand);
-        let s = parseFloat(secondOperand);
-        switch(operation){
-            case '+':
-                return f + s;
-            case '-':
-                return f - s;
-            case '*':
-                return f * s;
-            case '/':
-                return f / s
-            default:
-                return s;
-        }
-    }
-
-    renderNumberKey(i) {
-        return <NumberKey 
-            value={i}  
-            handleClick={() => this.handleNumberClick(i)}
-        />;
-    }
-
-    renderOperationKey(i) {
-        return <OperationKey 
-            value={i}  
-            handleClick={() => this.handleOperationClick(i)}
-        />;
-    }
-  
     render() {
-        const status = this.state.display;
-  
         return (
-            <div>
-                <div className="display">{status}</div>
-                <div className="board-row">
-                    {this.renderNumberKey("AC")}
-                    {this.renderNumberKey("C")}
-                    {this.renderNumberKey("%")}
-                    {this.renderOperationKey("/")}
-                </div>
-                <div className="board-row">
-                    {this.renderNumberKey(7)}
-                    {this.renderNumberKey(8)}
-                    {this.renderNumberKey(9)}
-                    {this.renderOperationKey("*")}
-                </div>
-                <div className="board-row">
-                    {this.renderNumberKey(4)}
-                    {this.renderNumberKey(5)}
-                    {this.renderNumberKey(6)}
-                    {this.renderOperationKey("+")}
-                </div>
-                <div className="board-row">
-                    {this.renderNumberKey(1)}
-                    {this.renderNumberKey(2)}
-                    {this.renderNumberKey(3)}
-                    {this.renderOperationKey("-")}
-                </div>
-                <div className="board-row">
-                    {this.renderNumberKey("")}
-                    {this.renderNumberKey(0)}
-                    {this.renderNumberKey(".")}
-                    {this.renderOperationKey("=")}
-                </div>
-            </div>
-      );
-    }
-}
-  
-class Game extends React.Component {
-    render() {
-      return (
-        <div className="game">
-            <div className="game-board">
-                <Board />
-            </div>
-            <div className="game-info">
-                <div>{/* status */}</div>
-                <ol>{/* TODO */}</ol>
-            </div>
-        </div>
-      );
+            <CalculatorContext.Provider value={this.state}>
+                {this.props.children}
+            </CalculatorContext.Provider>
+        )
     }
 }
 
-// class Calculator extends React.Component {
-//     render() {
-//         return (
-//             <div className="calculator">
-//                 <div className="calculator-display">
-//                     <CalculatorDisplay />
-//                     <CalculatorKeys />
-//                 </div>
-//             </div>
-//         );
-//     }
-// }
+let Calculator = () => {
+    return (
+        <div className="calculator">
+            <CalculatorDisplay />
+            <CalculatorNumericKey  value={0} />
+            <CalculatorNumericKey  value={1} />
+            <CalculatorNumericKey  value={2} />
+            <CalculatorNumericKey  value={3} />
+            <CalculatorNumericKey  value={4} />
+            <CalculatorNumericKey  value={5} />
+            <CalculatorNumericKey  value={6} />
+            <CalculatorNumericKey  value={7} />
+            <CalculatorNumericKey  value={8} />
+            <CalculatorNumericKey  value={9} />
+            <CalculatorOperationKey  value={"+"} />
+            <CalculatorOperationKey  value={"-"} />
+            <CalculatorOperationKey  value={"*"} />
+            <CalculatorOperationKey  value={"/"} />
+            <CalculatorOperationKey  value={"="} />
+            <CalculatorPeriodKey value={"."} />
+            <CalculatorClearKey value={"C"} />
+            <CalculatorClearKey value={"AC"} />
+            <CalculatorNegativeKey value={"+/-"} />
+        </div>
+    )
+}
+
+let CalculatorDisplay = () => {
+    const context = useContext(CalculatorContext);
+    return (
+        <div className="calculator-display">
+            {context.displayValue}
+        </div>
+    )
+}
   
-  // ========================================
-  
-ReactDOM.render(
-    <Game />,
+let CalculatorNumericKey = (props) => {
+    const context = useContext(CalculatorContext);
+    return (
+        <div className="calculator-key" >
+            <button className="square" onClick={() => context.updateDisplayValue(props.value)}>
+                {props.value}
+            </button>
+        </div>
+    )
+}
+
+let CalculatorOperationKey = (props) => {
+    const context = useContext(CalculatorContext);
+    return (
+        <div className="calculator-key" >
+            <button className="square" onClick={() => context.performOperation(props.value)}>
+                {props.value}
+            </button>
+        </div>
+    )
+}
+
+let CalculatorPeriodKey = (props) => {
+    const context = useContext(CalculatorContext);
+    return (
+        <div className="calculator-key" >
+            <button className="square" onClick={() => context.addPeriod()}>
+                {props.value}
+            </button>
+        </div>
+    )
+}
+
+let CalculatorClearKey = (props) => {
+    const context = useContext(CalculatorContext);
+    return (
+        <div className="calculator-key" >
+            <button className="square" onClick={() => context.clear(props.value)}>
+                {props.value}
+            </button>
+        </div>
+    )
+}
+
+let CalculatorNegativeKey = (props) => {
+    const context = useContext(CalculatorContext);
+    return (
+        <div className="calculator-key" >
+            <button className="square" onClick={() => context.toggleNegative()}>
+                {props.value}
+            </button>
+        </div>
+    )
+}
+
+
+class App extends Component {
+    render() {
+        return (
+            <CalculatorProvider>
+                <Calculator />
+            </CalculatorProvider>
+        );
+    }
+  }
+
+render(
+    <App />,
     document.getElementById('root')
 );
+
+const CalculatorOperations = {
+    '/': (prevValue, nextValue) => prevValue / nextValue,
+    '*': (prevValue, nextValue) => prevValue * nextValue,
+    '+': (prevValue, nextValue) => prevValue + nextValue,
+    '-': (prevValue, nextValue) => prevValue - nextValue,
+    '=': (prevValue, nextValue) => nextValue
+}
   
